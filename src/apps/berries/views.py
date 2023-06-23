@@ -1,29 +1,34 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 from .api_client import ExternalAPIClient
+from django.core.cache import cache
 import pandas as pd
 
 class BerriesViewSet(viewsets.ViewSet):
     api_url = 'https://pokeapi.co/api/v2/berry'
 
     def list(self, request):
-        api_client = ExternalAPIClient(api_url=self.api_url)
+        result_list = cache.get('berries')
+        if not result_list:
+            api_client = ExternalAPIClient(api_url=self.api_url)
 
-        try:
-            data = api_client.get_data()
-        except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            try:
+                data = api_client.get_data()
+            except Exception as e:
+                return Response({"error": str(e)}, status=500)
 
-        total_count = data['count']
-        result_list = []
-        for i in range(1, total_count + 1):
-            api_client.set_api_url(f'https://pokeapi.co/api/v2/berry/{i}')
-            response = api_client.get_data()
+            total_count = data['count']
+            result_list = []
+            for i in range(1, total_count + 1):
+                api_client.set_api_url(f'https://pokeapi.co/api/v2/berry/{i}')
+                response = api_client.get_data()
 
-            result_list.append({
-                'name': response['name'],
-                'growth_time': response['growth_time']
-            })
+                result_list.append({
+                    'name': response['name'],
+                    'growth_time': response['growth_time']
+                })
+
+            cache.set('berries', result_list, 60*60*24)
 
         df = pd.DataFrame.from_dict(result_list)
 
