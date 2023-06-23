@@ -1,8 +1,14 @@
+from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.response import Response
 from .api_client import ExternalAPIClient
 from django.core.cache import cache
 import pandas as pd
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 
 class BerriesViewSet(viewsets.ViewSet):
     api_url = 'https://pokeapi.co/api/v2/berry'
@@ -42,7 +48,18 @@ class BerriesViewSet(viewsets.ViewSet):
             "frequency_growth_time": df['growth_time'].value_counts().to_dict()
         }
 
+
+        plt.hist(df['growth_time'].astype(float), bins='auto')
+        plt.xlabel('Growth Time')
+        plt.ylabel('Frequency')
+        plt.title('Berry Growth Time Histogram')
+        plt.savefig('static/images/histogram.png')
+        plt.close()
+
         response = Response(output, status=200)
         response['Content-Type'] = 'application/json'
 
         return response
+
+def display_histogram(request):
+    return render(request, 'histogram.html')
