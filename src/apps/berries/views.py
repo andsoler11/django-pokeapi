@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from django.http import JsonResponse
 
 
 class BerriesViewSet(viewsets.ViewSet):
@@ -40,14 +41,13 @@ class BerriesViewSet(viewsets.ViewSet):
 
         output = {
             'berries_names': df['name'].to_list(),
-            "min_growth_time": df['growth_time'].astype(int).min(),
-            "median_growth_time": df['growth_time'].astype(float).median(),
-            "max_growth_time": df['growth_time'].astype(int).max(),
-            "variance_growth_time": df['growth_time'].astype(float).var(),
-            "mean_growth_time": df['growth_time'].astype(float).mean(),
+            "min_growth_time": int(df['growth_time'].min()),
+            "median_growth_time": float(df['growth_time'].median()),
+            "max_growth_time": int(df['growth_time'].max()),
+            "variance_growth_time": float(df['growth_time'].var()),
+            "mean_growth_time": float(df['growth_time'].mean()),
             "frequency_growth_time": df['growth_time'].value_counts().to_dict()
         }
-
 
         plt.hist(df['growth_time'].astype(float), bins='auto')
         plt.xlabel('Growth Time')
@@ -56,9 +56,8 @@ class BerriesViewSet(viewsets.ViewSet):
         plt.savefig('static/images/histogram.png')
         plt.close()
 
-        response = Response(output, status=200)
+        response = JsonResponse(output, json_dumps_params={'indent': 4})
         response['Content-Type'] = 'application/json'
-
         return response
 
 def display_histogram(request):
