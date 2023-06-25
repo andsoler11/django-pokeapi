@@ -68,3 +68,24 @@ Response: {
     "mean_growth_time": "", // time, float
     "frequency_growth_time": "", // time, {growth_time:    frequency, ...}
 }
+
+
+## Commands
+
+### Run the tests
+
+```bash
+docker-compose run --rm backend sh -c "python manage.py test apps/berries/tests"
+```
+
+### import berries manually
+
+```bash
+docker-compose run --rm backend sh -c "python manage.py import_berries"
+```
+
+### generate histogram of the berries growth time
+
+```bash
+docker-compose run --rm backend sh -c "python manage.py generate_histogram"
+```
