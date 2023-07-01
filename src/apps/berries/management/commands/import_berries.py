@@ -25,7 +25,6 @@ class Command(BaseCommand):
                 response = api_client.get_data()
             except Exception as e:
                 raise e
-            from pprint import pprint
 
             Berrie.objects.update_or_create(
                 id=response['id'],
